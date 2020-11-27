@@ -15,8 +15,8 @@ cc.Class({
             default:null
         },
         //   发射的球
-        boll:{
-            type:cc.RigidBody,
+        firstball:{
+            type:cc.Sprite,
             default:null
         },
         // 普通盒子
@@ -32,6 +32,18 @@ cc.Class({
             type:cc.Node,
             default:null,
         },
+        gameOverNode:{
+            type:cc.Node,
+            default:null,
+        },
+        levelLabel:{
+            type:cc.Label,
+            default:null
+        },
+        ballPrefab:{
+            type:cc.Prefab,
+            default:null
+        },
         // 灵敏度
         sensitivity:{
             type:cc.Float,
@@ -40,37 +52,40 @@ cc.Class({
             range:[1.2,3.2,0.02],    
         },
         // 所有小球计数
-        allBolls: 1,
+        allBalls: {
+            default:3,
+            serializable: false
+        },
+        // 用于计算是否所有球都落入地面
+        allBallsCount:{
+            default:0,
+            serializable: false
+        },
         // 盒子列表   
         // boxList:{
         //     type:cc.Prefab,
         //     default:[]
         // },
-        bg:{
-            type:cc.Node,
-            default:null
-        },
         // 是否显示辅助线 (表示是否在游戏中)
-        lineActive:false,
+        gameActive:false,
         // 是否开始游戏
         isBegin: false,
         // 游戏等级
         level:1,
-        bollDown:false,
-        gameOverNode:{
-            type:cc.Node,
-            default:null,
-        },
-        levelLabel:{
-            type:cc.Label,
-            default:null
-        }
+        ballDown:false,
+       
+        
     },
-    // 初始化环境
-    initSceneConfig (){
+    // 初始化游戏
+    initGame (){
         cc.director.getPhysicsManager().enabled = true //开启物理引擎
         cc.director.getCollisionManager().enabled = true//开启碰撞检测
-        cc.director.getPhysicsManager().gravity =  cc.v2(0, -640) //配置重力加速度
+        cc.director.getPhysicsManager().gravity =  cc.v2(0, -160) //配置重力加速度
+        this.boxPool = new cc.NodePool()
+        this.lifeboxPool = new cc.NodePool()
+        this.ballPool = new cc.NodePool()
+        this.ground.getComponent('ground').game = this
+
         this.node.on('touchstart',function ( event ) {
             this.touchStart( event )
           }.bind(this))
@@ -80,28 +95,6 @@ cc.Class({
         this.node.on('touchend',function ( event ) {
             this.touchEnd( event )
           }.bind(this))
-    },
-    // 初始化游戏
-    initGame(){
-        this.boxPool = new cc.NodePool()
-        this.lifeboxPool = new cc.NodePool()
-        this.bollPool = new cc.NodePool()
-        this.ground.getComponent('ground').game = this
-    },
-    // // 重启游戏
-    reStart(){
-        // 清空对象池，貌似不会销毁
-        this.gameOverNode.active = false
-        this.boxPool.clear()
-        this.lifeboxPool.clear()
-        this.bollPool.clear()
-        cc.director.loadScene('bollgame');
-
-    },
-    onLoad () {
-        this.initSceneConfig()
-        this.initGame()
-        this.createBox()
     },
     // 创建盒子
     createBox(){
@@ -148,13 +141,23 @@ cc.Class({
                     box.parent = this.node
                 }
             }
-            this.bollDown = false
+            this.ballDown = false
             this.levelLabel.string = `当前等级：${this.level}`
             this.level++
         }
         
         
     },
+    // 重启游戏
+    reStart(){
+        // 清空对象池，貌似不会销毁
+        this.gameOverNode.active = false
+        this.boxPool.clear()
+        this.lifeboxPool.clear()
+        this.ballPool.clear()
+        cc.director.loadScene('ballgame');
+    },
+    // 游戏结束
     gameOver() {
         this.isBegin = false
         this.gameOverNode.active = true
@@ -166,48 +169,66 @@ cc.Class({
         // 角度在-85~85之间
         let rotate = -(event.touch._point.x - viewWidth/2)/this.sensitivity
         // console.log('rotate:',rotate ,'viewWidth:',viewWidth,'event_x:',event.touch._point.x)
-        if(this.lineActive == false){
+        if(this.gameActive == false){
             this.line.active = true
             this.line.angle = rotate
         }
     },
     touchMove(event) {
-        if(this.lineActive == false){
+        if(this.gameActive == false){
             let viewWidth = cc.view.getVisibleSize().width
             let rotate = -(event.touch._point.x - viewWidth/2)/this.sensitivity
             this.line.angle = rotate
         }
     },
-    // 发射球体
-    sendBoll(boll) {
-        let speed = 4000
-        let radians = (this.line.angle + 90) / 180 *Math.PI
-        boll.linearVelocity = cc.v2(speed * Math.cos(radians),speed * Math.sin(radians));
-    },
     touchEnd(event) {
-        if (this.lineActive == false) {
+        if (this.gameActive == false) {
             this.line.active = false;
-
+            
             if (this.isBegin == false) {
               this.isBegin = true;
             }
-            this.sendBoll(this.boll)
-            this.lineActive = true;
+            let sendcount = 0
+            this.schedule(function(dt){
+                sendcount ++
+                let ball = cc.instantiate(this.ballPrefab)
+                ball.setPosition(this.firstball.node.getPosition())
+                this.node.addChild(ball)
+                this.sendBall(ball)
+                if(sendcount==this.allBalls){
+                    this.firstball.enabled = false
+                    this.gameActive = true;
+                }
+            },0.1, this.allBalls-1, 0.08)
+            // for(let i = 0; i < this.allBalls; i++ ){
+                
+            // }
+         
           }
     },
+    // 发射球体
+    sendBall(ball) {
+        let speed = 1000
+        let radians = (this.line.angle + 90) / 180 *Math.PI
+        ball.getComponent(cc.RigidBody).linearVelocity = cc.v2(speed * Math.cos(radians),speed * Math.sin(radians));
+        console.log(ball)
+    },
+    onLoad () {
+        this.initGame()
+        this.createBox()
+    },
     start () {
-       
         // cc.tween(this.boll).to(1,{position:cc.v2(100,100,0)}).by(3, {eulerAngles: cc.v3(360, 0, 360) }).start()
     },
-    moveBoll(){
-        // cc.tween(this.boll).by(3, {eulerAngles: cc.v3(360, 360, 360)}).start()
-        this.boll.linearVelocity = cc.v2(200 * 1, 1300 * 1);
-    },
-
-
+    // moveBoll(){
+    //     // cc.tween(this.boll).by(3, {eulerAngles: cc.v3(360, 360, 360)}).start()
+    //     this.boll.linearVelocity = cc.v2(200 * 1, 1300 * 1);
+    // },
     update (dt) {
-        if(this.bollDown){
+        if(this.ballDown){
             this.createBox()
         }
     },
+    // ahakid的的个性化教育是怎么体现的，和
+    // 
 });

@@ -12,11 +12,6 @@ cc.Class({
 
     },
     onLoad () {},
-    onBeginContact: function (contact, selfCollider, otherCollider) {
-        if (otherCollider.node.name == "lifebox") {
-            selfCollider.node.destroy();
-        }
-    },
     onEndContact(contact, selfCollider, otherCollider){
         // console.log(selfCollider)
         if(selfCollider.node.name == 'box'){
