@@ -201,6 +201,11 @@ cc.Class({
         if(this.gameActive == false){
             let viewWidth = cc.view.getVisibleSize().width
             let rotate = -(event.touch._point.x - viewWidth/2)/this.sensitivity
+            if (rotate>85){
+                rotate = 85
+            }else if(rotate<-85){
+                rotate = -85
+            }
             this.line.angle = rotate
         }
     },
