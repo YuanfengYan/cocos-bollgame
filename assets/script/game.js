@@ -26,20 +26,24 @@ cc.Class({
         //   发射的球
         firstball:{
             type:cc.Sprite,
-            default:null
+            default:null,
+            tooltip:'球的发射位置'
         },
         // 普通盒子
         box:{
             type:cc.Prefab,
-            default:null
+            default:null,
+            tooltip:'带撞击次数的普通盒子'
         },
         lifeBox:{
             type:cc.Prefab,
-            default:null
+            default:null,
+            tooltip:'增加球数的盒子'
         },
         line:{
             type:cc.Node,
             default:null,
+            tooltip:'瞄准辅助线'
         },
         gameOverNode:{
             type:cc.Node,
@@ -47,11 +51,13 @@ cc.Class({
         },
         levelLabel:{
             type:cc.Label,
-            default:null
+            default:null,
+            tooltip:'当前等级'
         },
         ballPrefab:{
             type:cc.Prefab,
-            default:null
+            default:null,
+            tooltip:'球的Prefab组件'
         },
         // 灵敏度
         sensitivity:{
@@ -59,6 +65,7 @@ cc.Class({
             default:3.2,
             slide:true,
             range:[1.2,3.2,0.02],    
+            tooltip:'角度移动灵敏度'
         },
         // 所有小球计数
         allBalls: 1,
@@ -207,7 +214,13 @@ cc.Class({
             let sendcount = 0
             this.schedule(function(dt){
                 sendcount ++
-                let ball = cc.instantiate(this.ballPrefab)
+                let ball = null
+                // 创建发射球
+                if(this.ballPool.size()>0){
+                    ball = this.ballPool.get();
+                }else{// 如果没有空闲对象，也就是对象池中备用对象不够时，我们就用 cc.instantiate 重新创建
+                    ball = cc.instantiate(this.ballPrefab)
+                }
                 ball.setPosition(this.firstball.node.getPosition())
                 ball.game = this;
                 this.node.addChild(ball)

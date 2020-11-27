@@ -9,7 +9,8 @@ cc.Class({
 
     onBeginContact: function (contact, selfCollider, otherCollider) {
         if (otherCollider.node.name == "ball") {
-            selfCollider.node.destroy();
+            // selfCollider.node.destroy();
+            otherCollider.node.game.lifeboxPool.put(selfCollider.node)
         }
     },
 

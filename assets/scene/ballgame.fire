@@ -195,7 +195,7 @@
       "array": [
         0,
         0,
-        415.69219381653056,
+        416.8423838059318,
         0,
         0,
         0,
@@ -2584,8 +2584,12 @@
       "__id__": 2
     },
     "_enabled": true,
-    "rockAudio": null,
-    "circleAudio": null,
+    "rockAudio": {
+      "__uuid__": "b8032556-9913-4f2a-b251-be570323ec31"
+    },
+    "circleAudio": {
+      "__uuid__": "4c37bf67-6316-4feb-b8fa-a10a7d7a809a"
+    },
     "ground": {
       "__id__": 21
     },

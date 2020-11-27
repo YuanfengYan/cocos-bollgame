@@ -37,16 +37,17 @@ cc.Class({
     onEndContact(contact, selfCollider, otherCollider){
         // console.log(selfCollider)
         if(otherCollider.node.name == 'box'){
-            cc.audioEngine.play(selfCollider.node.game.rockAudio, false, 1)
+            cc.audioEngine.play(selfCollider.node.game.rockAudio, false, 60)
             let label = otherCollider.node.getComponentInChildren(cc.Label)
             if(label.string > 1){
                 label.string -= 1
             }else{
-                label.node.parent.destroy()
+                // label.node.parent.destroy()
+                selfCollider.node.game.boxPool.put(label.node.parent)
             }
         }else if(otherCollider.node.name == 'lifebox'){
-            cc.audioEngine.play(selfCollider.node.game.circleAudio, false, 1)
-            otherCollider.node.destroy()
+            cc.audioEngine.play(selfCollider.node.game.circleAudio, false, 60)
+            // otherCollider.node.destroy()
             // selfCollider.node.game.allBalls ++ 不能直接总数上加，
             selfCollider.node.game.addBolls ++
         }
