@@ -1,4 +1,4 @@
-// 配置sensor  传感器类型的碰撞体，有回调，但不会有触发效果
+// 配置sensor 传感器类型的碰撞体，有回调，但不会有触发效果
 cc.Class({
     
     extends: cc.Component,
@@ -8,7 +8,7 @@ cc.Class({
     },
 
     onBeginContact: function (contact, selfCollider, otherCollider) {
-        if (otherCollider.node.name == "lifebox") {
+        if (otherCollider.node.name == "ball") {
             selfCollider.node.destroy();
         }
     },

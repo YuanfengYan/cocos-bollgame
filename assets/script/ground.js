@@ -26,7 +26,10 @@ cc.Class({
                 }
                 if(this.game.allBallsCount == this.game.allBalls){
                     this.game.ballDown = true
+                    this.game.allBalls +=this.game.addBolls||0
+                    this.game.addBolls = 0
                     this.game.allBallsCount = 0
+                    this.game.ballnumlabel.string = `球个数：x${this.game.allBalls}`;
                     this.game.gameActive = false
                 }
                 console.log(this.game.allBallsCount)

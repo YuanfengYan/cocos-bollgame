@@ -9,6 +9,15 @@ cc.Class({
     extends: cc.Component,
 
     properties: {
+        rockAudio: {
+            default: null,
+            type: cc.AudioClip,
+        },
+
+        circleAudio: {
+            default: null,
+            type: cc.AudioClip,
+        },
         // 地面
         ground:{
             type:cc.Node,
@@ -52,15 +61,15 @@ cc.Class({
             range:[1.2,3.2,0.02],    
         },
         // 所有小球计数
-        allBalls: {
-            default:3,
-            serializable: false
+        allBalls: 1,
+        // 新增球数
+        addBolls: 0,
+        ballnumlabel:{
+            type: cc.Label,
+            default:null,
         },
         // 用于计算是否所有球都落入地面
-        allBallsCount:{
-            default:0,
-            serializable: false
-        },
+        allBallsCount:0,
         // 盒子列表   
         // boxList:{
         //     type:cc.Prefab,
@@ -103,7 +112,7 @@ cc.Class({
             var childrenNode = this.node.children;
             for (var i = 0; i < childrenNode.length; i++) {
                 var node = childrenNode[i];
-                if (node.name == "box" || node.name == "lifeBox") {
+                if (node.name == "box" || node.name == "lifebox") {
                     if (node.y <= 450) {
                         node.y -= 100;
                         if (node.y == -350) {
@@ -132,6 +141,13 @@ cc.Class({
                             box = this.boxPool.get();
                         } else { // 如果没有空闲对象，也就是对象池中备用对象不够时，我们就用 cc.instantiate 重新创建
                             box = cc.instantiate(this.box);
+                        }
+                        let label = box.children[0].getComponent(cc.Label)
+                        let isDouble = Math.ceil(Math.random() * 10)>7;
+                        if (isDouble ) {
+                            label.string = 2 * this.level;
+                        } else {
+                            label.string = this.level;
                         }
                     }
                     box.x = -viewWidth/2 + 50 + 100 * i
@@ -193,6 +209,7 @@ cc.Class({
                 sendcount ++
                 let ball = cc.instantiate(this.ballPrefab)
                 ball.setPosition(this.firstball.node.getPosition())
+                ball.game = this;
                 this.node.addChild(ball)
                 this.sendBall(ball)
                 if(sendcount==this.allBalls){

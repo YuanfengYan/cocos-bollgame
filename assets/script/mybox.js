@@ -14,14 +14,14 @@ cc.Class({
     onLoad () {},
     onEndContact(contact, selfCollider, otherCollider){
         // console.log(selfCollider)
-        if(selfCollider.node.name == 'box'){
-            let label = selfCollider.node.getComponentInChildren(cc.Label)
-            if(label.string > 1){
-                label.string -= 1
-            }else{
-                label.node.parent.destroy()
-            }
-        }
+        // if(selfCollider.node.name == 'box'){
+        //     let label = selfCollider.node.getComponentInChildren(cc.Label)
+        //     if(label.string > 1){
+        //         label.string -= 1
+        //     }else{
+        //         label.node.parent.destroy()
+        //     }
+        // }
     },
     start () {
 
